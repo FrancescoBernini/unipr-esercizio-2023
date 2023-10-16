@@ -8,10 +8,10 @@ namespace Esercizio
 {
     internal class Baby
     {
-        public string year {  get; set; }
+        public string year { get; set; }
         public string name { get; set; }
         public string count { get; set; }
-        public string gender {  get; set; }
-        public string percent {  get; set; }
+        public string gender { get; set; }
+        public string percent { get; set; }
     }
 }

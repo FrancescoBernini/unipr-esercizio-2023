@@ -1,5 +1,5 @@
 ﻿// Classe generata con Modifica->Incolla speciale->classe Json
-public class Rootobject
+public class ISTATJson
 {
     public int[] years { get; set; }
     public _0[] _0 { get; set; }

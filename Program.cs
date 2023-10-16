@@ -105,17 +105,4 @@ foreach (var item in res)
 {
     Console.WriteLine(item);
 }
-/*
-JsonConverter<string> a;
-a.Write(borns,borns, new JsonSerializerOptions() { WriteIndented = true });
-
-borns = Utf8JsonReader.
-Console.WriteLine(borns);
-
-clas
-
-    //TODO
-    //salvare su file il risultato su file
-
-*/
 
