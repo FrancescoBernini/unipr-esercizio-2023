@@ -21,8 +21,21 @@ async Task<string> GetBornAsync(string url, CancellationToken cancellationToken 
 
 string JsonpToJson(string noMoreJsonp)
 {
+    // rimuovo callback
     noMoreJsonp = noMoreJsonp.Remove(0, noMoreJsonp.IndexOf('(') + 1);
-    noMoreJsonp = noMoreJsonp.Remove(noMoreJsonp.Length - ");".Length);
+    // rimuovo years:2021
+    noMoreJsonp = noMoreJsonp.Remove(noMoreJsonp.IndexOf('"'), noMoreJsonp.IndexOf(','));
+    // rimuovo tonda e ; della callback
+    noMoreJsonp = noMoreJsonp.Remove(noMoreJsonp.LastIndexOf(')'));// Deserializza la stringa JSON in un oggetto JSON
+    
+    JsonDocument document = JsonDocument.Parse(noMoreJsonp);
+
+    noMoreJsonp = JsonSerializer.Serialize(document.RootElement, new JsonSerializerOptions
+    {
+        WriteIndented = true
+    });
+    
+
     return noMoreJsonp;
 }
 
@@ -50,11 +63,12 @@ async Task<string> ReadFileAsync(string path, CancellationToken cancellationToke
     return await reader.ReadToEndAsync(cancellationToken);
 }
 
-string pathISTATFile = "./Mynascite2021.js";
-string pathJsonFile = "./Mynascite2021.json";
+string pathISTATFile = "./nascite2021.js";
+string pathJsonFile = "./nascite2021.json";
 string borns = "";
 IEnumerable<Baby>? babies = null;
-Tuple<IEnumerable<Baby>, IEnumerable<Baby>>? boysAndGirls = null;
+Dictionary<string, IEnumerable<Baby>>? boysAndGirls = null;
+
 if (!File.Exists(pathISTATFile))
 {
     borns = await GetBornAsync("https://www.istat.it/ws/nati/index2021.php?type=list&limit=137&year=2021", CancellationToken.None);
@@ -77,14 +91,20 @@ else
     borns = await ReadFileAsync(pathJsonFile, CancellationToken.None);
 }
 
-boysAndGirls = JsonSerializer.Deserialize<Tuple<IEnumerable<Baby>, IEnumerable<Baby>>>(borns);
-//babies = babies.Append<IEnumerable<Baby>>(boysAndGirls.Item1).Append<IEnumerable<Baby>>(boysAndGirls.Item2);
-Console.WriteLine(
+boysAndGirls = JsonSerializer.Deserialize<Dictionary<string, IEnumerable<Baby>>>(borns);
+
+babies = boysAndGirls["0"];
+babies = babies.Union(boysAndGirls["1"]);
+
+IEnumerable<string> res =
     from b in babies
     orderby b.name
-    select $"{b.name}\t{b.gender}\t{b.count}"
-);
+    select $"{b.name + (b.name.Length < 8 ? "\t\t" : "\t")}{b.gender}\t{b.count}";
 
+foreach (var item in res)
+{
+    Console.WriteLine(item);
+}
 /*
 JsonConverter<string> a;
 a.Write(borns,borns, new JsonSerializerOptions() { WriteIndented = true });
