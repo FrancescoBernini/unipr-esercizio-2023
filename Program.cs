@@ -27,14 +27,14 @@ string JsonpToJson(string noMoreJsonp)
     noMoreJsonp = noMoreJsonp.Remove(noMoreJsonp.IndexOf('"'), noMoreJsonp.IndexOf(','));
     // rimuovo tonda e ; della callback
     noMoreJsonp = noMoreJsonp.Remove(noMoreJsonp.LastIndexOf(')'));// Deserializza la stringa JSON in un oggetto JSON
-    
+
     JsonDocument document = JsonDocument.Parse(noMoreJsonp);
 
     noMoreJsonp = JsonSerializer.Serialize(document.RootElement, new JsonSerializerOptions
     {
         WriteIndented = true
     });
-    
+
 
     return noMoreJsonp;
 }
@@ -66,7 +66,7 @@ async Task<string> ReadFileAsync(string path, CancellationToken cancellationToke
 string pathISTATFile = "./nascite2021.js";
 string pathJsonFile = "./nascite2021.json";
 string borns = "";
-IEnumerable<Baby>? babies = null;
+IEnumerable<Baby>? babies = null; // cosi' pero' non risolviamo il problema null qundi mettere una eccezione come nella soluzione del prof
 Dictionary<string, IEnumerable<Baby>>? boysAndGirls = null;
 
 if (!File.Exists(pathISTATFile))
@@ -75,10 +75,10 @@ if (!File.Exists(pathISTATFile))
 
     await SaveFileAsync(pathISTATFile, borns, CancellationToken.None);
 }
-else
-{
-    borns = await ReadFileAsync(pathISTATFile, CancellationToken.None);
-}
+
+
+borns = await ReadFileAsync(pathISTATFile, CancellationToken.None);
+
 
 borns = JsonpToJson(borns);
 
@@ -86,15 +86,15 @@ if (!File.Exists(pathJsonFile))
 {
     await SaveFileAsync(pathJsonFile, borns, CancellationToken.None);
 }
-else
-{
-    borns = await ReadFileAsync(pathJsonFile, CancellationToken.None);
-}
+
+
+borns = await ReadFileAsync(pathJsonFile, CancellationToken.None);
+
 
 boysAndGirls = JsonSerializer.Deserialize<Dictionary<string, IEnumerable<Baby>>>(borns);
 
 babies = boysAndGirls["0"];
-babies = babies.Union(boysAndGirls["1"]);
+babies = babies.Concat(boysAndGirls["1"]);
 
 IEnumerable<string> res =
     from b in babies
